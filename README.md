@@ -7,6 +7,17 @@ CSCD 396 will provide students with an introduction to DevOps principles of Peop
 - We will cover practical examples that focus on the use of cloud bases services in Azure over advanced programming concepts.
 
 
+## Themes
+- DevOps Principles and Practices
+- Azure Cloud Services
+- GitHub and CI/CD
+- AI in DevOps
+- Building and Deploying Scalable Applications
+- Security and Best Practices in Cloud Development
+- Project and Team Collaboration and Communication
+
+
+
 ## Instructors and Class Information
 
 [Phil Spokas](https://github.com/philspokas) and [Jenny Curry](https://github.com/jenny-curry)
@@ -51,6 +62,7 @@ We will be using Visual Studio Code exclusively.
 - [ASP.NET](https://docs.microsoft.com/en-us/aspnet/core/?view=aspnetcore-7.0)
 - [Visual Studio Code](https://code.visualstudio.com/download) or a comparable text editor
 - VS Code Extensions:
+  - [Copilot]
   - [Azure Tools for Visual Studio Code](https://marketplace.visualstudio.com/items?itemName=ms-vscode.vscode-node-azure-pack)
   - [C# for Visual Studio Code](https://marketplace.visualstudio.com/items?itemName=ms-dotnettools.csharp)
   - [C# Dev Kit for Visual Studio Code](https://marketplace.visualstudio.com/items?itemName=ms-dotnettools.csdevkit) (optional)

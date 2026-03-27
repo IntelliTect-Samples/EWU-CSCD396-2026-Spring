@@ -8,45 +8,55 @@
 - Using the command line (PS or Bash)
 - VS Code (preferred) or IDE
 
-## Tentative Lecture Schedule
+## Lecture Schedule
 
-
-## Week 1
+## Lecture 1
 
 - Intros
 - Class Objectives
 - Class Overview
 - Cloud Computing
-- vs on premise
-- Services
+- Azure Services survey
 - What about AWS
 - Azure Fundamentals
-  - AAD
+  - Entra ID, IAM, RBAC
   - Resource Groups
   - Subscriptions
+- Review objectives of Lesson 2
+  - List of local tools and technologies to install
 
-## Week 2-1, 2
+## Lecture 2
+### Topics Covered
 - Q and A (max 10 min)
 - Review tools and environment configuration
+- Getting connected to Copilot
 - Getting connected to Azure
   - API and Resource Manager architecture
   - PowerShell and the AZ module
   - Azure CLI
+  - Configuring a budget and cost alerts
   - Provisoning Services
 - [GitHub Actions Intro](https://docs.github.com/en/actions)
-- Open ID Connect (OIDC)
+- Service Principals and Open ID Connect (OIDC)
 - Services Review
   - Blob Storage
   - [Key Vault](https://learn.microsoft.com/en-us/azure/key-vault/general/quick-create-cli)
-  
 
-## Week 2-2, 3
-- Azure App Service (Grant)
+## Lecture 3
+### Topics Covered
+- Deploying applications to Azure
+- Enterprise application architecture
+- CI/CD with GitHub Actions
+- Wordle clone
+  - client side
+  - turning into a scalable "enterprise" SaaS
+- Azure App Service
   - Build and deploy
   - App Configuration
   - Slots
 
-## Week 3-1, 4
+## Lecture 4
+### Topics Covered
 - Q and A
 - Review Assignment 2
 - Virtual Machines
@@ -55,92 +65,109 @@
 - Container Registry
 - Azure Container Instance*
 - Azure Container Apps**
+- Kubernetes and Azure Kubernetes Service (AKS)**
 
-## Week 3-2, 5
+## Lecture 5
+### Topics Covered
 - Q and A
 - Finish ACI
 - Functions
 - Logic Apps
 
-## Week 4-1, 6
+## Lecture 6
+### Topics Covered
 - Explore Functions
 - Discuss excercises
 - parameters
 - binding
 - function costs
 
-## Week 4-2, 7
+## Lecture 7
+### Topics Covered
 - Messages and Events
 - Service Bus overview
 - Explore ServiceBus
 
-## Week 5-1, 8
+## Lecture 8
+### Topics Covered
 - Review events and messages
 - Explore Event Grid
 
-## Week 5-2, 9
+## Lecture 9
+### Topics Covered
 - Static Web Apps
 - APIs
 - Content Delivery Networks (CDN)
 
-## Week 6-1, 10
+## Lecture 10
+### Topics Covered
 - Azure Static Web App Networking and DNS
 - Networking and DNS
-- Connecting 
-- Finish off Event Grid 
+- Connecting
+- Finish off Event Grid
 - Solution architecture
 - Planning
 - Deployments
 
-## Week 6-2, 11
+## Lecture 11
+### Topics Covered
 - Cosmos DB
 
-## Week 7-1, 12
+## Lecture 12
+### Topics Covered
 - Finish Cosmos DB
 - API Management intro
 
-## Week 7-2, 13
+## Lecture 13
+### Topics Covered
 - Query Cosmos DB
 
-## Week 8-1, 14
+## Lecture 14
+### Topics Covered
 - API Management continued
 - Something
 
-## Week 8-2, 15
+## Lecture 15
+### Topics Covered
 - Logic App w/ Sentiment Analysis
 - Cosmos DB Change Feed
 - Static site updates w/ secure a page
-- 
 - Redis Cache
 
-## Week 9-1, 16
+## Lecture 16
+### Topics Covered
 - Build out web app
 
-## Week 9-2, 17
+## Lecture 17
+### Topics Covered
 - Infrastructure as Code (IaC)
 - Bicep
 - Terraform
+- Deploy infrastructure with IaC and GitHub Actions
 
-## Week 10-1, 18
+## Lecture 18
+### Topics Covered
 - DevOps
 - App Configuration Service
 
-## Week 11-1, 19
+## Lecture 19
+### Topics Covered
 - Scrum
 - Azure Monitor
 
-## Week 11-2, 20
+## Lecture 20
+### Topics Covered
 - Challenges
 - Ask Us Anything
 
-## Week 12, Final Exams
-- tbd
+## Final Exams
+### Topics Covered
+- TBD
 
 
-## Topics (tentative)
-- x Git
-- o GitHub Actions
+## Topics to Cover
 - o GitHub Issues/Boards
+- Run a sprint
 ---
 - Scrum/Agile
 ---
@@ -151,6 +178,8 @@
     - [More workflow stuff](https://docs.github.com/en/enterprise-cloud@latest/actions/using-workflows/about-workflows)
 - monitoring and debugging
 - Security: managed identity, RBAC
+
+
 
 ## Azure Services
 Following is the primary list of services we plan to cover in this class. Note that several supporting services will also be covered.
@@ -182,9 +211,9 @@ Following is the primary list of services we plan to cover in this class. Note t
     - Kubernetes
 - CDN
 - Event Hub
+- Fabric
+- AI Foundry
 
 ### Extra/Bonus
-- Azure Chatbot
-- Azure Automation
 - OAuth
 

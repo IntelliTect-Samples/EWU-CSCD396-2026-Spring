@@ -1,5 +1,12 @@
 # Notes
 
+- How does AI work? What can you expect from it?
+- Integrate Fabric into the services
+- Integrate AI and AI Foundry into the services
+
+
+
+
 Integrating Security and Code Quality Checks
 Deployment Options
 
