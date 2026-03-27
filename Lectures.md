@@ -8,7 +8,7 @@
 - Using the command line (PS or Bash)
 - VS Code (preferred) or IDE
 
-## Tentative Lecture Schedule
+## Lecture Schedule
 
 ## Lecture 1
 
@@ -19,10 +19,10 @@
 - Azure Services survey
 - What about AWS
 - Azure Fundamentals
-  - AAD
+  - Entra ID, IAM, RBAC
   - Resource Groups
   - Subscriptions
-- Review objectives of Lession 2
+- Review objectives of Lesson 2
   - List of local tools and technologies to install
 
 ## Lecture 2
