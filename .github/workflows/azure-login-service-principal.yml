@@ -51,7 +51,7 @@ jobs:
   #       if: always()
   #       run: az logout
 
-  # Job 2: Login using Client ID and Client Secret
+  # Job 2: Login using Service Principal with Client Secret
   login-with-client-secret:
     runs-on: ubuntu-latest
     
@@ -59,17 +59,20 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v4
       
-      - name: Azure Login with Client ID and Secret
+      - name: Azure Login with Service Principal
         uses: azure/login@v1
         with:
-          client-id: ${{ vars.CLIENT_ID }}
-          client-secret: ${{ secrets.CLIENT_SECRET }}
-          tenant-id: ${{ vars.TENANT_ID }}
-          subscription-id: ${{ vars.SUBSCRIPTION_ID }}
+          creds: |
+            {
+              "clientId": "${{ secrets.AZURE_CLIENT_ID }}",
+              "clientSecret": "${{ secrets.AZURE_CLIENT_SECRET }}",
+              "subscriptionId": "${{ secrets.AZURE_SUBSCRIPTION_ID }}",
+              "tenantId": "${{ secrets.AZURE_TENANT_ID }}"
+            }
       
       - name: Verify Azure Connection
         run: |
-          echo "Successfully logged into Azure with client secret!"
+          echo "Successfully logged into Azure with service principal!"
           az account show
       
       - name: Logout from Azure
