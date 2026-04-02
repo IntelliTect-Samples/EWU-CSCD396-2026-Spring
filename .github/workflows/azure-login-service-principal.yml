@@ -45,10 +45,10 @@ jobs:
           echo "=== Resource Groups ==="
           az group list --query "[].{Name:name, Location:location}" --output table
           
-          # Example: List all web apps
-          echo "=== Web Apps ==="
-          az webapp list --query "[].{Name:name, State:state, Location:location}" --output table
-          az account show --name ewu2026test --resource-group rg-vmtest1
+          # Example: List all storage accounts
+          echo "=== Storage Accounts ==="
+          az storage account show --name ewu2026test --resource-group rg-vmtest1 --query "[].{Name:name, Location:location}" --output table
+
       
       - name: Logout from Azure
         if: always()
@@ -82,7 +82,71 @@ jobs:
   #       if: always()
   #       run: az logout
 
-  # # Job 3: Login using JSON Credentials (Legacy Method)
+  # Job 3: Using PowerShell to Create Key Vault
+  create-keyvault-with-powershell:
+    runs-on: windows-latest
+    
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+      
+      - name: Azure Login with OIDC
+        uses: azure/login@v1
+        with:
+          client-id: ${{ vars.CLIENT_ID }}
+          tenant-id: ${{ vars.TENANT_ID }}
+          subscription-id: ${{ vars.SUBSCRIPTION_ID }}
+          enable-AzPSSession: true
+      
+      - name: Create Key Vault with Azure PowerShell
+        uses: azure/powershell@v1
+        with:
+          azPSVersion: 'latest'
+          inlineScript: |
+            # Set variables
+            $resourceGroupName = "${{ vars.RESOURCE_GROUP_NAME }}"
+            $keyVaultName = "${{ vars.KEYVAULT_NAME }}"
+            $location = "${{ vars.AZURE_LOCATION }}"
+            
+            Write-Host "Connected to Azure Subscription:"
+            Get-AzContext
+            
+            # Check if resource group exists, create if not
+            $rg = Get-AzResourceGroup -Name $resourceGroupName -ErrorAction SilentlyContinue
+            if (-not $rg) {
+              Write-Host "Creating resource group: $resourceGroupName"
+              New-AzResourceGroup -Name $resourceGroupName -Location $location
+            } else {
+              Write-Host "Resource group $resourceGroupName already exists"
+            }
+            
+            # Check if Key Vault exists
+            $kv = Get-AzKeyVault -VaultName $keyVaultName -ResourceGroupName $resourceGroupName -ErrorAction SilentlyContinue
+            if (-not $kv) {
+              Write-Host "Creating Key Vault: $keyVaultName"
+              New-AzKeyVault -VaultName $keyVaultName `
+                -ResourceGroupName $resourceGroupName `
+                -Location $location `
+                -EnabledForDeployment `
+                -EnabledForTemplateDeployment
+              Write-Host "Key Vault created successfully!"
+            } else {
+              Write-Host "Key Vault $keyVaultName already exists"
+            }
+            
+            # Display Key Vault details
+            Write-Host "`n=== Key Vault Details ==="
+            Get-AzKeyVault -VaultName $keyVaultName -ResourceGroupName $resourceGroupName | 
+              Select-Object VaultName, ResourceGroupName, Location, VaultUri | 
+              Format-List
+      
+      - name: Logout from Azure
+        if: always()
+        run: |
+          az logout
+          Disconnect-AzAccount
+
+  # # Job 4: Login using JSON Credentials (Legacy Method)
   # login-with-json-creds:
   #   runs-on: ubuntu-latest
     
@@ -103,37 +167,3 @@ jobs:
   #     - name: Logout from Azure
   #       if: always()
   #       run: az logout
-
-  # # Job 4: Using PowerShell with Azure
-  # login-with-powershell:
-  #   runs-on: windows-latest
-    
-  #   steps:
-  #     - name: Checkout code
-  #       uses: actions/checkout@v4
-      
-  #     - name: Azure Login with OIDC
-  #       uses: azure/login@v1
-  #       with:
-  #         client-id: ${{ secrets.AZURE_CLIENT_ID }}
-  #         tenant-id: ${{ secrets.AZURE_TENANT_ID }}
-  #         subscription-id: ${{ secrets.AZURE_SUBSCRIPTION_ID }}
-  #         enable-AzPSSession: true  # Enable Azure PowerShell
-      
-  #     - name: Run Azure PowerShell Script
-  #       uses: azure/powershell@v1
-  #       with:
-  #         azPSVersion: 'latest'
-  #         inlineScript: |
-  #           # Example PowerShell commands
-  #           Write-Host "Connected to Azure Subscription:"
-  #           Get-AzContext
-            
-  #           Write-Host "`n=== Resource Groups ==="
-  #           Get-AzResourceGroup | Select-Object ResourceGroupName, Location | Format-Table
-      
-  #     - name: Logout from Azure
-  #       if: always()
-  #       run: |
-  #         az logout
-  #         Disconnect-AzAccount
