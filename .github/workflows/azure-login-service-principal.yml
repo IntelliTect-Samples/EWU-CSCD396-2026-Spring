@@ -1,0 +1,133 @@
+name: Azure Login - Service Principal
+
+# Trigger options
+on:
+  workflow_dispatch:  # Manual trigger
+  push:
+    branches:
+      - main
+    paths:
+      - '.github/workflows/azure-login-service-principal.yml'
+
+# Required for OIDC authentication
+permissions:
+  id-token: write
+  contents: read
+
+jobs:
+  # # Job 1: Login using OIDC (Recommended - More Secure)
+  # login-with-oidc:
+  #   runs-on: ubuntu-latest
+  #   environment: production  # Optional: Use GitHub environment for additional protection
+    
+  #   steps:
+  #     - name: Checkout code
+  #       uses: actions/checkout@v4
+      
+  #     - name: Azure Login with OIDC
+  #       uses: azure/login@v1
+  #       with:
+  #         client-id: ${{ secrets.AZURE_CLIENT_ID }}
+  #         tenant-id: ${{ secrets.AZURE_TENANT_ID }}
+  #         subscription-id: ${{ secrets.AZURE_SUBSCRIPTION_ID }}
+      
+  #     - name: Verify Azure Connection
+  #       run: |
+  #         echo "Successfully logged into Azure!"
+  #         az account show
+  #         az group list --output table
+      
+  #     - name: Azure CLI Script Example
+  #       run: |
+  #         # Example: List all resource groups
+  #         echo "=== Resource Groups ==="
+  #         az group list --query "[].{Name:name, Location:location}" --output table
+          
+  #         # Example: List all web apps
+  #         echo "=== Web Apps ==="
+  #         az webapp list --query "[].{Name:name, State:state, Location:location}" --output table
+      
+  #     - name: Logout from Azure
+  #       if: always()
+  #       run: az logout
+
+  # Job 2: Login using Client ID and Client Secret
+  login-with-client-secret:
+    runs-on: ubuntu-latest
+    
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+      
+      - name: Azure Login with Client ID and Secret
+        uses: azure/login@v1
+        with:
+          client-id: ${{ secrets.AZURE_CLIENT_ID }}
+          client-secret: ${{ secrets.AZURE_CLIENT_SECRET }}
+          tenant-id: ${{ secrets.AZURE_TENANT_ID }}
+          subscription-id: ${{ secrets.AZURE_SUBSCRIPTION_ID }}
+      
+      - name: Verify Azure Connection
+        run: |
+          echo "Successfully logged into Azure with client secret!"
+          az account show
+      
+      - name: Logout from Azure
+        if: always()
+        run: az logout
+
+  # # Job 3: Login using JSON Credentials (Legacy Method)
+  # login-with-json-creds:
+  #   runs-on: ubuntu-latest
+    
+  #   steps:
+  #     - name: Checkout code
+  #       uses: actions/checkout@v4
+      
+  #     - name: Azure Login with JSON Credentials
+  #       uses: azure/login@v1
+  #       with:
+  #         creds: ${{ secrets.AZURE_CREDENTIALS }}
+      
+  #     - name: Verify Azure Connection
+  #       run: |
+  #         echo "Successfully logged into Azure with JSON credentials!"
+  #         az account show
+      
+  #     - name: Logout from Azure
+  #       if: always()
+  #       run: az logout
+
+  # # Job 4: Using PowerShell with Azure
+  # login-with-powershell:
+  #   runs-on: windows-latest
+    
+  #   steps:
+  #     - name: Checkout code
+  #       uses: actions/checkout@v4
+      
+  #     - name: Azure Login with OIDC
+  #       uses: azure/login@v1
+  #       with:
+  #         client-id: ${{ secrets.AZURE_CLIENT_ID }}
+  #         tenant-id: ${{ secrets.AZURE_TENANT_ID }}
+  #         subscription-id: ${{ secrets.AZURE_SUBSCRIPTION_ID }}
+  #         enable-AzPSSession: true  # Enable Azure PowerShell
+      
+  #     - name: Run Azure PowerShell Script
+  #       uses: azure/powershell@v1
+  #       with:
+  #         azPSVersion: 'latest'
+  #         inlineScript: |
+  #           # Example PowerShell commands
+  #           Write-Host "Connected to Azure Subscription:"
+  #           Get-AzContext
+            
+  #           Write-Host "`n=== Resource Groups ==="
+  #           Get-AzResourceGroup | Select-Object ResourceGroupName, Location | Format-Table
+      
+  #     - name: Logout from Azure
+  #       if: always()
+  #       run: |
+  #         az logout
+  #         Disconnect-AzAccount
