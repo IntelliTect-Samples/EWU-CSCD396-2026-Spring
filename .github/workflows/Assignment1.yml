@@ -26,6 +26,12 @@ jobs:
           subscription-id: ${{ secrets.AZURE_SUBSCRIPTION_ID }}
           enable-AzPSSession: true
 
+      - name: Verify Azure connection
+        run: |
+          echo "Successfully logged into Azure"
+          az account show
+          az resource list --output table
+
       - name: Run Assignment1 PowerShell script
         uses: azure/powershell@v2
         with:
