@@ -3,7 +3,7 @@ name: Assignment1
 on:
   push:
     branches:
-      - Assignment1
+      - Assignment-1
   workflow_dispatch:
 
 permissions:
