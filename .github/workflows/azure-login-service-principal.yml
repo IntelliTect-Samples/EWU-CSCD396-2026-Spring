@@ -18,7 +18,7 @@ jobs:
   # # Job 1: Login using OIDC (Recommended - More Secure)
   login-with-oidc:
     runs-on: ubuntu-latest
-    environment: production  # Optional: Use GitHub environment for additional protection
+    environment: production  # The login step will use this environment as part of the subject claim when reaching out to azure to looking for a matching OIDC Federated Credential. If this is ommitted, the branch name will be used in the subject claim
     
     steps:
       - name: Checkout code
@@ -85,7 +85,6 @@ jobs:
   # Job 3: Using PowerShell to Create Key Vault
   create-keyvault-with-powershell:
     runs-on: windows-latest
-    needs: login-with-oidc  # Ensure OIDC login runs first
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
