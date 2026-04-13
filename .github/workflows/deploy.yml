@@ -40,4 +40,4 @@ jobs:
           az webapp deploy \
           --resource-group cscd396assignment1 \
           --name cscd396assignment1webapp \
-          --src-path Assignment1/Assignment1_WebApp/publish
+          --src-path ${{ github.workspace }}/Assignment1/Assignment1_WebApp/publish
