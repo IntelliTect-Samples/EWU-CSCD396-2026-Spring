@@ -26,6 +26,7 @@ jobs:
           dotnet restore
           dotnet build --configuration Release
           dotnet publish -c Release -o publish
+        working-directory: Assignment1/Assignment1_WebApp
 
       - name: Login to Azure (OIDC)
         uses: azure/login@v2
@@ -39,4 +40,4 @@ jobs:
         with:
           app-name: "billmiller-webapp-12345"
           publish-profile: ${{ secrets.AZURE_WEBAPP_PUBLISH_PROFILE }}
-          package: ./publish
+          package: Assignment1/Assignment1_WebApp/publish
