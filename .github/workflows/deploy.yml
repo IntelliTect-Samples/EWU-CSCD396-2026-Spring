@@ -35,9 +35,15 @@ jobs:
           tenant-id: ${{ secrets.AZURE_TENANT_ID }}
           subscription-id: ${{ secrets.AZURE_SUBSCRIPTION_ID }}
 
+      - name: Zip publish output
+        run: |
+          cd Assignment1/Assignment1_WebApp/publish
+          zip -r ${{ github.workspace }}/publish.zip .
+
       - name: Deploy via Azure CLI
         run: |
           az webapp deploy \
-          --resource-group cscd396assignment1 \
-          --name cscd396assignment1webapp \
-          --src-path ${{ github.workspace }}/Assignment1/Assignment1_WebApp/publish
+            --resource-group cscd396assignment1 \
+            --name cscd396assignment1webapp \
+            --src-path ${{ github.workspace }}/publish.zip \
+            --type zip
