@@ -35,9 +35,9 @@ jobs:
           tenant-id: ${{ secrets.AZURE_TENANT_ID }}
           subscription-id: ${{ secrets.AZURE_SUBSCRIPTION_ID }}
 
-      - name: Deploy to Azure Web App
-        uses: azure/webapps-deploy@v3
-        with:
-          app-name: "cscd396assignment1webapp"
-          publish-profile: ${{ secrets.AZURE_WEBAPP_PUBLISH_PROFILE }}
-          package: Assignment1/Assignment1_WebApp/publish
+      - name: Deploy via Azure CLI
+        run: |
+          az webapp deploy \
+          --resource-group cscd396assignment1 \
+          --name cscd396assignment1webapp \
+          --src-path Assignment1/Assignment1_WebApp/publish
