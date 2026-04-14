@@ -1,0 +1,26 @@
+name: Assignment1 Workflow
+on:
+    push:
+        branches:
+            - Assignment1
+permissions:
+    id-token: write
+    contents: read
+jobs:
+    run-script:
+        runs-on: ubuntu-latest
+ 
+        steps:
+            - name: Checkout Repository
+              uses: actions/checkout@v4
+
+            - name: Azure Login (OIDC)
+              uses: actions/azure/login@v2
+              with:
+                client-id: ${{ secrets.AZURE_CLIENT_ID }}
+                tenant-id: ${{ secrets.AZURE_TENANT_ID }}
+                subscription-id: ${{ secrets.AZURE_SUBSCRIPTION_ID }}
+            
+            - name: Run Powershell Script
+              shell: pwsh
+              run: ./Assignment1/Assignment1.ps1
