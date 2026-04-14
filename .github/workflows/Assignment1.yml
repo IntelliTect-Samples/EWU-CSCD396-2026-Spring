@@ -21,6 +21,10 @@ jobs:
                 tenant-id: ${{ secrets.AZURE_TENANT_ID }}
                 subscription-id: ${{ secrets.AZURE_SUBSCRIPTION_ID }}
             
+            - name: Install Az Module
+              shell: pwsh
+              run: Install-Module -Name Az -Scope CurrentUser -Force -AllowClobber
+
             - name: Run Powershell Script
               shell: pwsh
               run: ./Assignment1/Assignment1.ps1
