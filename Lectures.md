@@ -69,8 +69,7 @@
 - Containers and the Container Use Case
 - Docker and Docker Desktop
 - Container Registry
-- Azure Container Instance*
-- Azure Container Apps**
+- Azure Container Apps
 - Kubernetes and Azure Kubernetes Service (AKS)**
 
 ## Lecture 6
