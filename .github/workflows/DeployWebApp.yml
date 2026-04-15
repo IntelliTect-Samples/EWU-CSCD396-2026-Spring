@@ -1,0 +1,48 @@
+name: Deploy Web App
+
+on:
+  workflow_dispatch:
+  push:
+    branches:
+      - assignment1
+    paths:
+      - 'SampleApp/MyFirstAzureWebApp/**'
+      - '.github/workflows/DeployWebApp.yml'
+
+permissions:
+  id-token: write
+  contents: read
+
+jobs:
+  build-and-deploy:
+    runs-on: windows-latest
+    environment: production
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup .NET
+        uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: '8.0.x'
+
+      - name: Build and Publish
+        run: dotnet publish SampleApp/MyFirstAzureWebApp/MyFirstAzureWebApp.csproj --configuration Release --output ./publish
+
+      - name: Azure Login with OIDC
+        uses: azure/login@v1
+        with:
+          client-id: ${{ vars.CLIENT_ID }}
+          tenant-id: ${{ vars.TENANT_ID }}
+          subscription-id: ${{ vars.SUBSCRIPTION_ID }}
+
+      - name: Deploy to Azure Web App
+        uses: azure/webapps-deploy@v2
+        with:
+          app-name: 'cscd396-carsonl15'
+          package: ./publish
+
+      - name: Logout from Azure
+        if: always()
+        run: az logout
