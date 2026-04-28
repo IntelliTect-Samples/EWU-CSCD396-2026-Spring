@@ -1,20 +1,28 @@
-variable "container_image_name" {
-  description = "Full container image name"
-  type        = string
-}
-
 variable "resource_group_name" {
-  default = "assignment2-rg"
+  description = "Name of the resource group"
+  type        = string
+  default     = "rg-assignment2-crawford"
 }
 
 variable "location" {
-  default = "westus3"
+  description = "Azure region"
+  type        = string
+  default     = "eastus"
 }
 
-variable "web_app_name" {
-  default = "crawford-app-unique123"
+variable "environment_name" {
+  description = "Name of the Container Apps Environment"
+  type        = string
+  default     = "env-assignment2-crawford"
 }
 
-variable "acr_name" {
-  default = "crawfordacr123"
+variable "container_app_name" {
+  description = "Name of the Container App"
+  type        = string
+  default     = "ca-assignment2-crawford"
+}
+
+variable "container_image_name" {
+  description = "Full container image name passed from GitHub Actions"
+  type        = string
 }
