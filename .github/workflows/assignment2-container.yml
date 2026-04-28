@@ -22,9 +22,10 @@ env:
   BACKEND_CONTAINER: ${{ vars.TF_STATE_CONTAINER }}
   BACKEND_KEY: ${{ vars.TF_STATE_KEY }}
 
-  ARM_CLIENT_ID: ${{ vars.CLIENT_ID }}
-  ARM_SUBSCRIPTION_ID: ${{ vars.SUBSCRIPTION_ID }}
-  ARM_TENANT_ID: ${{ vars.TENANT_ID }}
+  # FIXED: use secrets instead of vars
+  ARM_CLIENT_ID: ${{ secrets.AZURE_CLIENT_ID }}
+  ARM_SUBSCRIPTION_ID: ${{ secrets.AZURE_SUBSCRIPTION_ID }}
+  ARM_TENANT_ID: ${{ secrets.AZURE_TENANT_ID }}
   ARM_USE_OIDC: true
 
   TF_VAR_resource_group_name: 'rg-assignment2-crawford'
@@ -32,7 +33,7 @@ env:
   TF_VAR_container_app_name: 'ca-assignment2-crawford'
   TF_VAR_environment_name: 'env-assignment2-crawford'
 
-  # temporary image so Terraform can deploy before ACR is wired in
+  # temporary image for initial deployment
   TF_VAR_container_image_name: 'mcr.microsoft.com/azuredocs/containerapps-helloworld:latest'
 
 jobs:
