@@ -1,0 +1,17 @@
+# Terraform secrets / local vars
+*.tfvars
+*.tfvars.json
+terraform.tfvars
+terraform/terraform.tfvars
+
+# Terraform local state/cache
+.terraform/
+*.tfstate
+*.tfstate.*
+crash.log
+
+# Sensitive override files
+override.tf
+override.tf.json
+*_override.tf
+*_override.tf.json

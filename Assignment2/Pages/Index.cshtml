@@ -1,0 +1,18 @@
+﻿@page
+@model IndexModel
+@{
+    ViewData["Title"] = "Home page";
+}
+
+<div class="text-center">
+    <h1 class="display-4">CSCD 396 - Spring 2026</h1>
+    <h2>Assignment: Azure App Service Deployment Proof</h2>
+    <p>This web application is provided as proof of deployment for the CSCD 396 (Spring 2026) class assignment.</p>
+    <ul class="list-unstyled">
+        <li><strong>Course:</strong> CSCD 396 - Spring 2026</li>
+        <li><strong>Assignment:</strong> Assignment 2 - Create and deploy a containerized Web App</li>
+        <li><strong>Student:</strong> Dakota Condos</li>
+        <li><strong>Rendered on:</strong> @(TimeZoneInfo.ConvertTimeFromUtc(DateTime.UtcNow,
+                                                TimeZoneInfo.FindSystemTimeZoneById("Pacific Standard Time")).ToString("f")) PST</li>
+        </ul>
+    </div>
