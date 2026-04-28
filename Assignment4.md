@@ -79,6 +79,12 @@ You can test if your assignment will pass by running the PS script at Scripts/As
 
 Be sure to install the Az Powershell modules that are listed as dependencies 
 
+
+- Provide a link to the Azure Resource group where the resources are deployed in your PR
+- Provide a link to the GitHub Repo you used for the assignment
+
+
+
 ## Extra Credit
 
 - Create a custom image from your virtual machine named 'vm-image:v1" and push the image to your container registry. ❌✅
