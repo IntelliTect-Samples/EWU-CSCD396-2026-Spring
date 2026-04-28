@@ -3,13 +3,14 @@ variable "image_name" {
   type        = string
 }
 
-variable "acr_username" {
-  description = "ACR username"
+variable "acr_name" {
+  description = "Existing Azure Container Registry name"
   type        = string
+  default     = "a2containerregistrybillm"
 }
 
-variable "acr_password" {
-  description = "ACR password"
+variable "acr_resource_group_name" {
+  description = "Resource group containing the existing Azure Container Registry"
   type        = string
-  sensitive   = true
+  default     = "devops-rg"
 }
