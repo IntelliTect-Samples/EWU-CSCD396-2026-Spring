@@ -34,11 +34,29 @@ resource "azurerm_container_app_environment" "main" {
   log_analytics_workspace_id = azurerm_log_analytics_workspace.main.id
 }
 
+data "azurerm_container_registry" "acr" {
+  name                = "crawfordacr2026"
+  resource_group_name = var.resource_group_name
+
+  depends_on = [
+    azurerm_resource_group.main
+  ]
+}
+
 resource "azurerm_container_app" "main" {
   name                         = var.container_app_name
   container_app_environment_id = azurerm_container_app_environment.main.id
   resource_group_name          = azurerm_resource_group.main.name
   revision_mode                = "Single"
+
+  identity {
+    type = "SystemAssigned"
+  }
+
+  registry {
+    server   = data.azurerm_container_registry.acr.login_server
+    identity = "System"
+  }
 
   template {
     container {
@@ -63,6 +81,12 @@ resource "azurerm_container_app" "main" {
       percentage      = 100
     }
   }
+}
+
+resource "azurerm_role_assignment" "acr_pull" {
+  principal_id         = azurerm_container_app.main.identity[0].principal_id
+  role_definition_name = "AcrPull"
+  scope                = data.azurerm_container_registry.acr.id
 }
 
 output "container_app_url" {
