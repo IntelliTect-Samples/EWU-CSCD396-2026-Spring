@@ -18,10 +18,10 @@ env:
   TF_VERSION: '1.5.0'
   WORKING_DIR: './Terraform'
   IMAGE_NAME: 'assignment2-webapp'
-  # Backend (uses the same state storage as Assignment 1, but a separate state file)
-  BACKEND_RESOURCE_GROUP: ${{ vars.TF_STATE_RESOURCE_GROUP }}
-  BACKEND_STORAGE_ACCOUNT: ${{ vars.TF_STATE_STORAGE_ACCOUNT }}
-  BACKEND_CONTAINER: ${{ vars.TF_STATE_CONTAINER }}
+  # Backend (same storage account as Assignment 1, separate state file)
+  BACKEND_RESOURCE_GROUP: 'rg-vmtest1'
+  BACKEND_STORAGE_ACCOUNT: 'ewu2026test'
+  BACKEND_CONTAINER: 'tfstate'
   BACKEND_KEY: 'assignment2.terraform.tfstate'
   # Azure auth for Terraform's azurerm provider
   ARM_CLIENT_ID: ${{ vars.CLIENT_ID }}
