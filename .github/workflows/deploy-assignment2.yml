@@ -112,15 +112,19 @@ jobs:
             -backend-config="container_name=${{ env.BACKEND_CONTAINER }}" \
             -backend-config="key=${{ env.BACKEND_KEY }}"
 
-      - name: Terraform Apply (RG + ACR + AcrPush only)
+      - name: Terraform Plan (RG + ACR + AcrPush only)
         working-directory: ${{ env.WORKING_DIR }}
         env:
           TF_VAR_container_image: 'placeholder'
         run: |
-          terraform apply -auto-approve \
+          terraform plan -out=tfplan \
             -target=azurerm_resource_group.main \
             -target=azurerm_container_registry.main \
             -target=azurerm_role_assignment.acr_push
+
+      - name: Terraform Apply (RG + ACR + AcrPush only)
+        working-directory: ${{ env.WORKING_DIR }}
+        run: terraform apply -auto-approve tfplan
 
       - name: Capture ACR login server
         id: tf_output
@@ -209,11 +213,15 @@ jobs:
             -backend-config="container_name=${{ env.BACKEND_CONTAINER }}" \
             -backend-config="key=${{ env.BACKEND_KEY }}"
 
-      - name: Terraform Apply
+      - name: Terraform Plan
         working-directory: ${{ env.WORKING_DIR }}
         env:
           TF_VAR_container_image: ${{ needs.build-and-push.outputs.image_ref }}
-        run: terraform apply -auto-approve
+        run: terraform plan -out=tfplan
+
+      - name: Terraform Apply
+        working-directory: ${{ env.WORKING_DIR }}
+        run: terraform apply -auto-approve tfplan
 
       - name: Verify the container app is serving the image
         working-directory: ${{ env.WORKING_DIR }}
