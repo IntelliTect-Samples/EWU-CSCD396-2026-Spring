@@ -5,7 +5,7 @@ variable "resource_group_name" {
 
 variable "location" {
   type    = string
-  default = "canadacentral"
+  default = "westus2"
 }
 
 variable "container_app_name" {

@@ -21,15 +21,14 @@ provider "azurerm" {
   subscription_id = "98ef8437-66f2-4a03-9d1a-cf7057d27d9c"
 }
 
-resource "azurerm_container_app_environment" "env" {
-  name                = "${var.container_app_name}-env"
-  location            = var.location
+data "azurerm_container_app_environment" "env" {
+  name                = "cscd396-container-app-env"
   resource_group_name = var.resource_group_name
 }
 
 resource "azurerm_container_app" "app" {
   name                         = var.container_app_name
-  container_app_environment_id = azurerm_container_app_environment.env.id
+  container_app_environment_id = data.azurerm_container_app_environment.env.id
   resource_group_name          = var.resource_group_name
   revision_mode                = "Single"
 
