@@ -1,0 +1,54 @@
+name: Assignment2
+
+on:
+  push:
+    branches:
+      - main
+    paths:
+      - "Assignment2/DevOpsApp/**"
+      - ".github/workflows/Assignment2.yml"
+
+  workflow_dispatch:
+
+permissions:
+  id-token: write
+  contents: read
+
+env:
+  ACR_NAME: a2containerregistrybillm
+  CONTAINER_APP_NAME: devops-app
+  CONTAINER_APP_RESOURCE_GROUP: devops-rg-tf
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Azure Login (OIDC)
+        uses: azure/login@v2
+        with:
+          client-id: ${{ secrets.AZURE_CLIENT_ID }}
+          tenant-id: ${{ secrets.AZURE_TENANT_ID }}
+          subscription-id: ${{ secrets.AZURE_SUBSCRIPTION_ID }}
+
+      - name: Set image name
+        run: echo "IMAGE_NAME=${{ env.ACR_NAME }}.azurecr.io/devopsapp:${{ github.sha }}" >> $GITHUB_ENV
+
+      - name: Build container image
+        run: docker build -t $IMAGE_NAME .
+        working-directory: ./Assignment2/DevOpsApp
+
+      - name: Login to ACR
+        run: az acr login --name ${{ env.ACR_NAME }}
+
+      - name: Push container image
+        run: docker push $IMAGE_NAME
+
+      - name: Deploy to Container App
+        run: az containerapp update --name ${{ env.CONTAINER_APP_NAME }} --resource-group ${{ env.CONTAINER_APP_RESOURCE_GROUP }} --image $IMAGE_NAME
+
+      - name: Show app URL
+        run: az containerapp show --name ${{ env.CONTAINER_APP_NAME }} --resource-group ${{ env.CONTAINER_APP_RESOURCE_GROUP }} --query properties.configuration.ingress.fqdn -o tsv
