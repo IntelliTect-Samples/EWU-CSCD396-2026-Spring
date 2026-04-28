@@ -25,7 +25,7 @@ Assumes you have Docker installed and running on your machine.
 1. Install the Azure CLI and log in to your Azure account using `az login`
 1. Use the Azure CLI to log in to your ACR using `az acr login --name <registry-name>`
 1. Tag your Docker image with the ACR login server name using `docker tag <image-name> <registry-name>.azurecr.io/<image-name>:<tag>`
-1. Push the Docker image to ACR using `docker push <registry-name>.azurecr
+1. Push the Docker image to ACR using `docker push acrckqlww.azurecr.io/app1:latest`
 
 
 ## Containerize with Docker
