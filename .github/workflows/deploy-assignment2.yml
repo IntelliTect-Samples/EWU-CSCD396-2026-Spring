@@ -18,9 +18,9 @@ env:
   TF_VERSION: '1.5.0'
   WORKING_DIR: './Terraform'
   IMAGE_NAME: 'assignment2-webapp'
-  # Backend (same storage account as Assignment 1, separate state file)
-  BACKEND_RESOURCE_GROUP: 'rg-vmtest1'
-  BACKEND_STORAGE_ACCOUNT: 'ewu2026test'
+  # Backend (created on first run by the tfstate-backend job below)
+  BACKEND_RESOURCE_GROUP: 'rg-tfstate-carsonl15'
+  BACKEND_STORAGE_ACCOUNT: 'tfstatecarsonl15a2'
   BACKEND_CONTAINER: 'tfstate'
   BACKEND_KEY: 'assignment2.terraform.tfstate'
   # Azure auth for Terraform's azurerm provider
@@ -36,9 +36,43 @@ env:
   TF_VAR_container_registry_name: ${{ vars.CONTAINER_REGISTRY_NAME }}
 
 jobs:
+  tfstate-backend:
+    name: Ensure Terraform State Backend Exists
+    runs-on: ubuntu-latest
+    environment: production
+    steps:
+      - name: Azure Login (OIDC)
+        uses: azure/login@v2
+        with:
+          client-id: ${{ vars.CLIENT_ID }}
+          tenant-id: ${{ vars.TENANT_ID }}
+          subscription-id: ${{ vars.SUBSCRIPTION_ID }}
+
+      - name: Create state RG, storage account, and container if missing
+        run: |
+          set -e
+          az group create -n "${{ env.BACKEND_RESOURCE_GROUP }}" -l "${{ env.TF_VAR_location }}" -o none
+          if ! az storage account show -n "${{ env.BACKEND_STORAGE_ACCOUNT }}" -g "${{ env.BACKEND_RESOURCE_GROUP }}" -o none 2>/dev/null; then
+            az storage account create \
+              -n "${{ env.BACKEND_STORAGE_ACCOUNT }}" \
+              -g "${{ env.BACKEND_RESOURCE_GROUP }}" \
+              -l "${{ env.TF_VAR_location }}" \
+              --sku Standard_LRS \
+              --allow-blob-public-access false \
+              --min-tls-version TLS1_2 \
+              -o none
+          fi
+          KEY=$(az storage account keys list -g "${{ env.BACKEND_RESOURCE_GROUP }}" -n "${{ env.BACKEND_STORAGE_ACCOUNT }}" --query '[0].value' -o tsv)
+          az storage container create \
+            -n "${{ env.BACKEND_CONTAINER }}" \
+            --account-name "${{ env.BACKEND_STORAGE_ACCOUNT }}" \
+            --account-key "$KEY" \
+            -o none
+
   bootstrap:
     name: Terraform Bootstrap (RG + ACR)
     runs-on: ubuntu-latest
+    needs: tfstate-backend
     environment: production
     outputs:
       acr_login_server: ${{ steps.tf_output.outputs.acr_login_server }}
