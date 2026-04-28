@@ -4,6 +4,10 @@ terraform {
       source  = "hashicorp/azurerm"
       version = "~> 3.0"
     }
+    time = {
+      source  = "hashicorp/time"
+      version = "~> 0.11"
+    }
   }
 
   backend "azurerm" {
@@ -64,6 +68,15 @@ resource "azurerm_role_assignment" "acr_pull" {
   principal_id         = azurerm_user_assigned_identity.container_app.principal_id
 }
 
+# Azure RBAC has eventual consistency: a role assignment's API write returns
+# success before the permission is actually effective for data-plane calls.
+# Without this delay the Container App's first image pull can fail with
+# "denied: requested access to the resource is denied".
+resource "time_sleep" "wait_for_acr_pull" {
+  depends_on      = [azurerm_role_assignment.acr_pull]
+  create_duration = "60s"
+}
+
 resource "azurerm_container_app" "main" {
   name                         = var.container_app_name
   container_app_environment_id = azurerm_container_app_environment.main.id
@@ -104,5 +117,5 @@ resource "azurerm_container_app" "main" {
     }
   }
 
-  depends_on = [azurerm_role_assignment.acr_pull]
+  depends_on = [time_sleep.wait_for_acr_pull]
 }

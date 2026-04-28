@@ -48,6 +48,12 @@ jobs:
           tenant-id: ${{ vars.TENANT_ID }}
           subscription-id: ${{ vars.SUBSCRIPTION_ID }}
 
+      - name: Register required Azure resource providers
+        run: |
+          for ns in Microsoft.App Microsoft.OperationalInsights Microsoft.ContainerRegistry Microsoft.ManagedIdentity; do
+            az provider register --namespace "$ns" --wait
+          done
+
       - name: Create state RG, storage account, and container if missing
         run: |
           set -e
@@ -209,11 +215,31 @@ jobs:
           TF_VAR_container_image: ${{ needs.build-and-push.outputs.image_ref }}
         run: terraform apply -auto-approve
 
-      - name: Show deployment URL
+      - name: Verify the container app is serving the image
         working-directory: ${{ env.WORKING_DIR }}
         run: |
           URL=$(terraform output -raw container_app_url)
-          echo "## Container App Deployed" >> "$GITHUB_STEP_SUMMARY"
+          echo "Probing $URL ..."
+          for attempt in 1 2 3 4 5 6 7 8; do
+            CODE=$(curl -s -o /dev/null -w "%{http_code}" --max-time 10 "$URL" || echo "000")
+            if [ "$CODE" = "200" ]; then
+              echo "✓ App responded with 200 on attempt $attempt"
+              echo "URL=$URL" >> "$GITHUB_ENV"
+              exit 0
+            fi
+            echo "Attempt $attempt got HTTP $CODE, sleeping 20s..."
+            sleep 20
+          done
+          echo "❌ App did not respond with 200 after 8 attempts (~3 min)"
+          echo "Last status code: $CODE"
+          exit 1
+
+      - name: Show deployment URL
+        if: success()
+        working-directory: ${{ env.WORKING_DIR }}
+        run: |
+          URL=$(terraform output -raw container_app_url)
+          echo "## ✅ Container App Deployed and Verified" >> "$GITHUB_STEP_SUMMARY"
           echo "" >> "$GITHUB_STEP_SUMMARY"
           echo "- URL: $URL" >> "$GITHUB_STEP_SUMMARY"
           echo "- Image: ${{ needs.build-and-push.outputs.image_ref }}" >> "$GITHUB_STEP_SUMMARY"
