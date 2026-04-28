@@ -14,11 +14,11 @@ output "container_registry_name" {
 }
 
 output "container_app_fqdn" {
-  description = "FQDN of the Container App"
-  value       = azurerm_container_app.main.latest_revision_fqdn
+  description = "Stable FQDN of the Container App ingress (does not change between revisions)"
+  value       = azurerm_container_app.main.ingress[0].fqdn
 }
 
 output "container_app_url" {
-  description = "URL of the Container App"
-  value       = "https://${azurerm_container_app.main.latest_revision_fqdn}"
+  description = "Stable URL of the Container App"
+  value       = "https://${azurerm_container_app.main.ingress[0].fqdn}"
 }
