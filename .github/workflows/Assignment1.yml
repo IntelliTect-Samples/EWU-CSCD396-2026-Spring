@@ -1,0 +1,40 @@
+name: Assignment1 Workflow
+on:
+    push:
+        branches:
+            - Assignment1
+permissions:
+    id-token: write
+    contents: read
+jobs:
+    run-script:
+        runs-on: ubuntu-latest
+ 
+        steps:
+            - name: Checkout Repository
+              uses: actions/checkout@v4
+
+            - name: Azure Login (OIDC)
+              uses: azure/login@v2
+              with:
+                client-id: ${{ secrets.AZURE_CLIENT_ID }}
+                tenant-id: ${{ secrets.AZURE_TENANT_ID }}
+                subscription-id: ${{ secrets.AZURE_SUBSCRIPTION_ID }}
+                enable-AzPSSession: true
+        
+            - name: Install Az Module
+              shell: pwsh
+              run: Install-Module -Name Az -Scope CurrentUser -Force -AllowClobber
+
+            - name: Run Powershell Script
+              shell: pwsh
+              run: ./Assignment1/Assignment1.ps1
+
+            - name: Build App
+              run: dotnet publish Assignment1Webapp -c Release -o publish
+
+            - name: Deploy to Azure Web App
+              uses: azure/webapps-deploy@v2
+              with:
+                app-name: assignment1webapp-wiilke
+                package: publish
