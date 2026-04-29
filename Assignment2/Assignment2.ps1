@@ -1,0 +1,7 @@
+$SubscriptionId = "d7dc33ae-d588-44a6-bda7-3e08dbd66d6f"
+$ResourceGroup = "rg-assignment2"
+$WebAppName = "cscd396-jake-webapp2"
+$WebAppUrl = "https://cscd396-jake-webapp2.azurewebsites.net"
+$KeyVault = "kv-jake-assn2"
+$SecretName = "MySecret"
+$StorageAccount = "sajakea2cscd396"
