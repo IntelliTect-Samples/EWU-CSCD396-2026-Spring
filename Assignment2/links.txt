@@ -1,0 +1,5 @@
+Resource Group: https://portal.azure.com/#resource/subscriptions/207d6c46-9d83-44fc-b7d5-6e2cfcf4d001/resourceGroups/assignment2-rg/overview
+
+Repo: https://github.com/wiilke/EWU-CSCD396-2026-Spring
+
+Container App: https://assignment2ca.icyocean-f7856293.centralus.azurecontainerapps.io/
