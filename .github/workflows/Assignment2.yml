@@ -33,7 +33,7 @@ jobs:
 
             - name: Terraform Plan Infrastructure
               working-directory: ./Assignment2/Terraform
-              run: terraform plan
+              run: terraform plan -var="image_name=$IMAGE_NAME"
 
             - name: ACR Login
               run: az acr login --name $ACR_NAME
