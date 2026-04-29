@@ -83,12 +83,6 @@ resource "azurerm_container_app" "main" {
   }
 }
 
-resource "azurerm_role_assignment" "acr_pull" {
-  principal_id         = azurerm_container_app.main.identity[0].principal_id
-  role_definition_name = "AcrPull"
-  scope                = data.azurerm_container_registry.acr.id
-}
-
 output "container_app_url" {
   description = "URL of the Container App"
   value       = "https://${azurerm_container_app.main.latest_revision_fqdn}"
