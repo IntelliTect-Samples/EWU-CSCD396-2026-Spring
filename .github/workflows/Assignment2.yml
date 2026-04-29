@@ -2,7 +2,7 @@ name: Assignment2 Workflow
 on:
     push:
         branches:
-            - Assignment2
+            - Assignment2-fixed
 permissions:
     id-token: write
     contents: read
