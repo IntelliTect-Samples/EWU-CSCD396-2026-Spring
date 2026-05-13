@@ -10,16 +10,16 @@ variable "location" {
   default     = "centralus"
 }
 
-variable "container_apps_location" {
-  description = "Azure region for Container Apps resources"
-  type        = string
-  default     = "eastus"
-}
-
 variable "environment_name" {
   description = "Name of the Container Apps Environment"
   type        = string
-  default     = "assignment3"
+  default     = "assignment2"
+}
+
+variable "environment_resource_group_name" {
+  description = "Name of the resource group that contains the Container Apps Environment"
+  type        = string
+  default     = "assignment2-rg"
 }
 
 variable "container_app_name" {

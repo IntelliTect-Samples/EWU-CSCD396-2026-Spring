@@ -62,24 +62,14 @@ resource "azurerm_service_plan" "function" {
   sku_name            = "Y1"
 }
 
-resource "azurerm_log_analytics_workspace" "main" {
-  name                = "law-${var.environment_name}"
-  location            = var.container_apps_location
-  resource_group_name = azurerm_resource_group.main.name
-  sku                 = "PerGB2018"
-  retention_in_days   = 30
-}
-
-resource "azurerm_container_app_environment" "main" {
-  name                       = var.environment_name
-  location                   = var.container_apps_location
-  resource_group_name        = azurerm_resource_group.main.name
-  log_analytics_workspace_id = azurerm_log_analytics_workspace.main.id
+data "azurerm_container_app_environment" "main" {
+  name                = var.environment_name
+  resource_group_name = var.environment_resource_group_name
 }
 
 resource "azurerm_container_app" "main" {
   name                         = var.container_app_name
-  container_app_environment_id = azurerm_container_app_environment.main.id
+  container_app_environment_id = data.azurerm_container_app_environment.main.id
   resource_group_name          = azurerm_resource_group.main.name
   revision_mode                = "Single"
 
