@@ -1,56 +1,170 @@
-name: Assignment3 Workflow
+name: Assignment 3 Deploy
+
 on:
-    push:
-        branches:
-            - Assignment3
+  push:
+    branches:
+      - Assignment3
+    paths:
+      - 'Assignment2Webapp/**'
+      - 'Assignment3/**'
+      - '.github/workflows/Assignment3.yml'
+  workflow_dispatch:
+
 permissions:
-    id-token: write
-    contents: read
+  id-token: write
+  contents: read
+
 env:
-  IMAGE_NAME: assignment3acrwiilke.azurecr.io/assignment2webapp:latest
+  RESOURCE_GROUP: assignment3-rg
   ACR_NAME: assignment3acrwiilke
+  CONTAINER_APP_NAME: assignment3ca
+  FUNCTION_APP_PREFIX: assignment3-func
+  TERRAFORM_DIR: Assignment3/Terraform
+  WEBAPP_DIR: Assignment2Webapp
+  FUNCTION_DIR: Assignment3/FunctionApp
+
 jobs:
-    run-script:
-        runs-on: ubuntu-latest
- 
-        steps:
-            - name: Checkout Repository
-              uses: actions/checkout@v4
+  changes:
+    name: Detect changed files
+    runs-on: ubuntu-latest
+    outputs:
+      webapp: ${{ steps.filter.outputs.webapp }}
+      functionapp: ${{ steps.filter.outputs.functionapp }}
+      terraform: ${{ steps.filter.outputs.terraform }}
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
 
-            - name: Azure Login (OIDC)
-              uses: azure/login@v2
-              with:
-                client-id: ${{ secrets.AZURE_CLIENT_ID }}
-                tenant-id: ${{ secrets.AZURE_TENANT_ID }}
-                subscription-id: ${{ secrets.AZURE_SUBSCRIPTION_ID }}
+      - name: Detect changed paths
+        id: filter
+        uses: dorny/paths-filter@v3
+        with:
+          filters: |
+            webapp:
+              - 'Assignment2Webapp/**'
+            functionapp:
+              - 'Assignment3/FunctionApp/**'
+            terraform:
+              - 'Assignment3/Terraform/**'
+              - '.github/workflows/Assignment3.yml'
 
-            - name: Install Terraform
-              uses: hashicorp/setup-terraform@v3
+  terraform:
+    name: Deploy Terraform infrastructure
+    runs-on: ubuntu-latest
+    needs: changes
+    if: needs.changes.outputs.terraform == 'true' || github.event_name == 'workflow_dispatch'
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
 
-            - name: Terraform Init
-              working-directory: ./Assignment3/Terraform
-              run: terraform init
+      - name: Azure login
+        uses: azure/login@v2
+        with:
+          client-id: ${{ secrets.AZURE_CLIENT_ID }}
+          tenant-id: ${{ secrets.AZURE_TENANT_ID }}
+          subscription-id: ${{ secrets.AZURE_SUBSCRIPTION_ID }}
 
-            - name: Terraform Plan Infrastructure
-              working-directory: ./Assignment3/Terraform
-              run: terraform plan -var="image_name=$IMAGE_NAME" -var="function_app_name=assignment3-func" -var="function_plan_name=assignment3-func-plan" -var="storage_account_name=assignment3storage"
+      - name: Setup Terraform
+        uses: hashicorp/setup-terraform@v3
 
-            - name: ACR Login
-              run: az acr login --name $ACR_NAME
+      - name: Terraform init
+        working-directory: ${{ env.TERRAFORM_DIR }}
+        run: terraform init
 
-            - name: Build Webapp
-              run: docker build -t assignment2webapp ./Assignment2Webapp
+      - name: Terraform format check
+        working-directory: ${{ env.TERRAFORM_DIR }}
+        run: terraform fmt -check
 
-            - name: Tag Image
-              run: docker tag assignment2webapp $IMAGE_NAME
+      - name: Terraform validate
+        working-directory: ${{ env.TERRAFORM_DIR }}
+        run: terraform validate
 
-            - name: Push Image
-              run: docker push $IMAGE_NAME
-              
-            - name: Terraform Plan App Image
-              working-directory: ./Assignment3/Terraform
-              run: terraform plan -var="image_name=$IMAGE_NAME" -var="function_app_name=assignment3-func" -var="function_plan_name=assignment3-func-plan" -var="storage_account_name=assignment3storage"
+      - name: Terraform plan
+        working-directory: ${{ env.TERRAFORM_DIR }}
+        run: terraform plan
 
-            - name: Terraform Apply App Image
-              working-directory: ./Assignment3/Terraform
-              run: terraform apply -auto-approve -var="image_name=$IMAGE_NAME" -var="function_app_name=assignment3-func" -var="function_plan_name=assignment3-func-plan" -var="storage_account_name=assignment3storage"
+      - name: Terraform apply
+        working-directory: ${{ env.TERRAFORM_DIR }}
+        run: terraform apply -auto-approve
+
+  deploy-webapp:
+    name: Deploy container app code
+    runs-on: ubuntu-latest
+    needs:
+      - changes
+      - terraform
+    if: always() && needs.changes.result == 'success' && (needs.changes.outputs.webapp == 'true' || needs.changes.outputs.terraform == 'true' || github.event_name == 'workflow_dispatch') && (needs.terraform.result == 'success' || needs.terraform.result == 'skipped')
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Azure login
+        uses: azure/login@v2
+        with:
+          client-id: ${{ secrets.AZURE_CLIENT_ID }}
+          tenant-id: ${{ secrets.AZURE_TENANT_ID }}
+          subscription-id: ${{ secrets.AZURE_SUBSCRIPTION_ID }}
+
+      - name: Log in to Azure Container Registry
+        run: az acr login --name $ACR_NAME
+
+      - name: Build container image
+        run: docker build -t $ACR_NAME.azurecr.io/assignment2webapp:${{ github.sha }} $WEBAPP_DIR
+
+      - name: Push container image
+        run: docker push $ACR_NAME.azurecr.io/assignment2webapp:${{ github.sha }}
+
+      - name: Update container app image
+        run: |
+          az containerapp update \
+            --name $CONTAINER_APP_NAME \
+            --resource-group $RESOURCE_GROUP \
+            --image $ACR_NAME.azurecr.io/assignment2webapp:${{ github.sha }}
+
+  deploy-function:
+    name: Deploy Azure Function code
+    runs-on: ubuntu-latest
+    needs:
+      - changes
+      - terraform
+    if: always() && needs.changes.result == 'success' && (needs.changes.outputs.functionapp == 'true' || needs.changes.outputs.terraform == 'true' || github.event_name == 'workflow_dispatch') && (needs.terraform.result == 'success' || needs.terraform.result == 'skipped')
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Azure login
+        uses: azure/login@v2
+        with:
+          client-id: ${{ secrets.AZURE_CLIENT_ID }}
+          tenant-id: ${{ secrets.AZURE_TENANT_ID }}
+          subscription-id: ${{ secrets.AZURE_SUBSCRIPTION_ID }}
+
+      - name: Setup .NET
+        uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: '8.0.x'
+
+      - name: Publish function app
+        run: dotnet publish $FUNCTION_DIR/Assignment3.FunctionApp.csproj --configuration Release --output function-publish
+
+      - name: Create deployment package
+        run: |
+          cd function-publish
+          zip -r ../function.zip .
+
+      - name: Resolve function app name
+        id: function-name
+        run: |
+          FUNCTION_APP_NAME=$(az functionapp list --resource-group $RESOURCE_GROUP --query "[?starts_with(name, '${FUNCTION_APP_PREFIX}')].name | [0]" -o tsv)
+          if [ -z "$FUNCTION_APP_NAME" ]; then
+            echo "No Function App found in $RESOURCE_GROUP with prefix $FUNCTION_APP_PREFIX"
+            exit 1
+          fi
+          echo "name=$FUNCTION_APP_NAME" >> "$GITHUB_OUTPUT"
+
+      - name: Deploy function package
+        run: |
+          az functionapp deployment source config-zip \
+            --resource-group $RESOURCE_GROUP \
+            --name ${{ steps.function-name.outputs.name }} \
+            --src function.zip

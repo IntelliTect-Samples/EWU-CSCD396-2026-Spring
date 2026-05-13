@@ -4,12 +4,16 @@ terraform {
       source  = "hashicorp/azurerm"
       version = "~> 3.0"
     }
+    random = {
+      source  = "hashicorp/random"
+      version = "~> 3.0"
+    }
   }
   backend "azurerm" {
     resource_group_name  = "assignment2-rg"
     storage_account_name = "assignment2sawiilke"
     container_name       = "tfstate"
-    key                  = "assignment2.terraform.tfstate"
+    key                  = "assignment3.terraform.tfstate"
   }
 }
 
@@ -17,20 +21,17 @@ provider "azurerm" {
   features {}
 }
 
-# Random string for unique resource names
 resource "random_string" "suffix" {
   length  = 6
   upper   = false
   special = false
 }
 
-# Resource Group
 resource "azurerm_resource_group" "main" {
   name     = var.resource_group_name
   location = var.location
 }
 
-# Storage Account
 resource "azurerm_storage_account" "main" {
   name                     = "${var.storage_account_name}${random_string.suffix.result}"
   resource_group_name      = azurerm_resource_group.main.name
@@ -39,14 +40,12 @@ resource "azurerm_storage_account" "main" {
   account_replication_type = "LRS"
 }
 
-# Storage Container for function output
 resource "azurerm_storage_container" "functionoutput" {
   name                  = "functionoutput"
   storage_account_name  = azurerm_storage_account.main.name
   container_access_type = "private"
 }
 
-# ACR
 resource "azurerm_container_registry" "main" {
   name                = var.container_registry_name
   resource_group_name = azurerm_resource_group.main.name
@@ -55,7 +54,6 @@ resource "azurerm_container_registry" "main" {
   admin_enabled       = true
 }
 
-# App Service Plan for Function
 resource "azurerm_service_plan" "function" {
   name                = var.function_plan_name
   resource_group_name = azurerm_resource_group.main.name
@@ -64,7 +62,6 @@ resource "azurerm_service_plan" "function" {
   sku_name            = "Y1"
 }
 
-# Log Analytics Workspace (required for Container Apps Environment)
 resource "azurerm_log_analytics_workspace" "main" {
   name                = "law-${var.environment_name}"
   location            = azurerm_resource_group.main.location
@@ -73,7 +70,6 @@ resource "azurerm_log_analytics_workspace" "main" {
   retention_in_days   = 30
 }
 
-# Container Apps Environment
 resource "azurerm_container_app_environment" "main" {
   name                       = var.environment_name
   location                   = azurerm_resource_group.main.location
@@ -81,7 +77,6 @@ resource "azurerm_container_app_environment" "main" {
   log_analytics_workspace_id = azurerm_log_analytics_workspace.main.id
 }
 
-# Container App
 resource "azurerm_container_app" "main" {
   name                         = var.container_app_name
   container_app_environment_id = azurerm_container_app_environment.main.id
@@ -148,7 +143,6 @@ resource "azurerm_servicebus_queue" "messages" {
   namespace_id = azurerm_servicebus_namespace.main.id
 }
 
-# Azure Function App (Linux, Managed Identity)
 resource "azurerm_linux_function_app" "main" {
   name                       = "${var.function_app_name}-${random_string.suffix.result}"
   resource_group_name        = azurerm_resource_group.main.name
@@ -161,29 +155,34 @@ resource "azurerm_linux_function_app" "main" {
   }
   site_config {
     application_stack {
-      dotnet_version = "8.0"
+      dotnet_version              = "8.0"
+      use_dotnet_isolated_runtime = true
     }
   }
   app_settings = {
-    "AzureWebJobsStorage" = azurerm_storage_account.main.primary_connection_string
-    "FUNCTIONS_WORKER_RUNTIME" = "dotnet"
-    "ServiceBusConnection__fullyQualifiedNamespace" = azurerm_servicebus_namespace.main.name
-    "ServiceBusQueueName" = azurerm_servicebus_queue.messages.name
-    "OutputContainer" = azurerm_storage_container.functionoutput.name
-    "STORAGE_ACCOUNT_URL" = "https://${azurerm_storage_account.main.name}.blob.core.windows.net"
+    "AzureWebJobsStorage"                           = azurerm_storage_account.main.primary_connection_string
+    "FUNCTIONS_WORKER_RUNTIME"                      = "dotnet-isolated"
+    "ServiceBusConnection__fullyQualifiedNamespace" = "${azurerm_servicebus_namespace.main.name}.servicebus.windows.net"
+    "ServiceBusQueueName"                           = azurerm_servicebus_queue.messages.name
+    "OutputContainer"                               = azurerm_storage_container.functionoutput.name
+    "StorageAccountBlobEndpoint"                    = "https://${azurerm_storage_account.main.name}.blob.core.windows.net/"
   }
 }
 
-# Grant Function App access to Storage Account
 resource "azurerm_role_assignment" "function_storage_blob_contributor" {
   scope                = azurerm_storage_account.main.id
   role_definition_name = "Storage Blob Data Contributor"
   principal_id         = azurerm_linux_function_app.main.identity[0].principal_id
 }
 
-# Grant Container App access to Service Bus (Sender)
+resource "azurerm_role_assignment" "function_servicebus_receiver" {
+  scope                = azurerm_servicebus_namespace.main.id
+  role_definition_name = "Azure Service Bus Data Receiver"
+  principal_id         = azurerm_linux_function_app.main.identity[0].principal_id
+}
+
 resource "azurerm_role_assignment" "containerapp_servicebus_sender" {
   scope                = azurerm_servicebus_namespace.main.id
   role_definition_name = "Azure Service Bus Data Sender"
-  principal_id         = azurerm_container_app.main.identity.principal_id
+  principal_id         = azurerm_container_app.main.identity[0].principal_id
 }

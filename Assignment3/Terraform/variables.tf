@@ -1,8 +1,7 @@
-# Variables
 variable "resource_group_name" {
   description = "Name of the resource group"
   type        = string
-  default     = "assignment2-rg"
+  default     = "assignment3-rg"
 }
 
 variable "location" {
@@ -14,13 +13,13 @@ variable "location" {
 variable "environment_name" {
   description = "Name of the Container Apps Environment"
   type        = string
-  default     = "assignment2"
+  default     = "assignment3"
 }
 
 variable "container_app_name" {
   description = "Name of the Container App"
   type        = string
-  default     = "assignment2ca"
+  default     = "assignment3ca"
 }
 
 variable "image_name" {
@@ -32,7 +31,7 @@ variable "image_name" {
 variable "container_registry_name" {
   description = "Name of the Azure Container Registry"
   type        = string
-  default     = "assignment2acrwiilke"
+  default     = "assignment3acrwiilke"
 }
 
 variable "service_bus_namespace_name" {

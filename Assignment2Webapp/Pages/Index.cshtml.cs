@@ -3,8 +3,6 @@ using Microsoft.AspNetCore.Mvc.RazorPages;
 using Azure.Messaging.ServiceBus;
 using Azure.Identity;
 using System.ComponentModel.DataAnnotations;
-using System;
-using System.Threading.Tasks;
 
 namespace Assignment2Webapp.Pages;
 
@@ -48,8 +46,8 @@ public class IndexModel : PageModel
                 ? _serviceBusNamespace
                 : _serviceBusNamespace + ".servicebus.windows.net";
 
-            var client = new ServiceBusClient(fullyQualifiedNamespace, new DefaultAzureCredential());
-            var sender = client.CreateSender(_serviceBusQueue);
+            await using var client = new ServiceBusClient(fullyQualifiedNamespace, new DefaultAzureCredential());
+            ServiceBusSender sender = client.CreateSender(_serviceBusQueue);
             await sender.SendMessageAsync(new ServiceBusMessage(Message));
             StatusMessage = "Message sent successfully!";
         }
