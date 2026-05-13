@@ -64,7 +64,7 @@ resource "azurerm_service_plan" "function" {
 
 resource "azurerm_log_analytics_workspace" "main" {
   name                = "law-${var.environment_name}"
-  location            = azurerm_resource_group.main.location
+  location            = var.container_apps_location
   resource_group_name = azurerm_resource_group.main.name
   sku                 = "PerGB2018"
   retention_in_days   = 30
@@ -72,7 +72,7 @@ resource "azurerm_log_analytics_workspace" "main" {
 
 resource "azurerm_container_app_environment" "main" {
   name                       = var.environment_name
-  location                   = azurerm_resource_group.main.location
+  location                   = var.container_apps_location
   resource_group_name        = azurerm_resource_group.main.name
   log_analytics_workspace_id = azurerm_log_analytics_workspace.main.id
 }
@@ -90,6 +90,11 @@ resource "azurerm_container_app" "main" {
   secret {
     name  = "acr-password"
     value = azurerm_container_registry.main.admin_password
+  }
+
+  secret {
+    name  = "servicebus-connection-string"
+    value = azurerm_servicebus_namespace_authorization_rule.assignment3.primary_connection_string
   }
 
   registry {
@@ -111,6 +116,10 @@ resource "azurerm_container_app" "main" {
       env {
         name  = "SERVICEBUS_QUEUE"
         value = azurerm_servicebus_queue.messages.name
+      }
+      env {
+        name        = "SERVICEBUS_CONNECTION_STRING"
+        secret_name = "servicebus-connection-string"
       }
     }
 
@@ -143,6 +152,15 @@ resource "azurerm_servicebus_queue" "messages" {
   namespace_id = azurerm_servicebus_namespace.main.id
 }
 
+resource "azurerm_servicebus_namespace_authorization_rule" "assignment3" {
+  name         = "assignment3"
+  namespace_id = azurerm_servicebus_namespace.main.id
+
+  listen = true
+  send   = true
+  manage = false
+}
+
 resource "azurerm_linux_function_app" "main" {
   name                       = "${var.function_app_name}-${random_string.suffix.result}"
   resource_group_name        = azurerm_resource_group.main.name
@@ -163,26 +181,10 @@ resource "azurerm_linux_function_app" "main" {
     "AzureWebJobsStorage"                           = azurerm_storage_account.main.primary_connection_string
     "FUNCTIONS_WORKER_RUNTIME"                      = "dotnet-isolated"
     "ServiceBusConnection__fullyQualifiedNamespace" = "${azurerm_servicebus_namespace.main.name}.servicebus.windows.net"
+    "ServiceBusConnection"                          = azurerm_servicebus_namespace_authorization_rule.assignment3.primary_connection_string
     "ServiceBusQueueName"                           = azurerm_servicebus_queue.messages.name
     "OutputContainer"                               = azurerm_storage_container.functionoutput.name
+    "StorageConnectionString"                       = azurerm_storage_account.main.primary_connection_string
     "StorageAccountBlobEndpoint"                    = "https://${azurerm_storage_account.main.name}.blob.core.windows.net/"
   }
-}
-
-resource "azurerm_role_assignment" "function_storage_blob_contributor" {
-  scope                = azurerm_storage_account.main.id
-  role_definition_name = "Storage Blob Data Contributor"
-  principal_id         = azurerm_linux_function_app.main.identity[0].principal_id
-}
-
-resource "azurerm_role_assignment" "function_servicebus_receiver" {
-  scope                = azurerm_servicebus_namespace.main.id
-  role_definition_name = "Azure Service Bus Data Receiver"
-  principal_id         = azurerm_linux_function_app.main.identity[0].principal_id
-}
-
-resource "azurerm_role_assignment" "containerapp_servicebus_sender" {
-  scope                = azurerm_servicebus_namespace.main.id
-  role_definition_name = "Azure Service Bus Data Sender"
-  principal_id         = azurerm_container_app.main.identity[0].principal_id
 }

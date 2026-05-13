@@ -16,11 +16,13 @@ public class IndexModel : PageModel
 
     private readonly string? _serviceBusNamespace;
     private readonly string? _serviceBusQueue;
+    private readonly string? _serviceBusConnectionString;
 
     public IndexModel()
     {
         _serviceBusNamespace = Environment.GetEnvironmentVariable("SERVICEBUS_NAMESPACE");
         _serviceBusQueue = Environment.GetEnvironmentVariable("SERVICEBUS_QUEUE");
+        _serviceBusConnectionString = Environment.GetEnvironmentVariable("SERVICEBUS_CONNECTION_STRING");
     }
 
     public void OnGet()
@@ -34,7 +36,7 @@ public class IndexModel : PageModel
             return Page();
         }
 
-        if (string.IsNullOrEmpty(_serviceBusNamespace) || string.IsNullOrEmpty(_serviceBusQueue))
+        if (string.IsNullOrEmpty(_serviceBusQueue))
         {
             StatusMessage = "Service Bus configuration is missing.";
             return Page();
@@ -42,11 +44,7 @@ public class IndexModel : PageModel
 
         try
         {
-            string fullyQualifiedNamespace = _serviceBusNamespace.Contains(".servicebus.windows.net")
-                ? _serviceBusNamespace
-                : _serviceBusNamespace + ".servicebus.windows.net";
-
-            await using var client = new ServiceBusClient(fullyQualifiedNamespace, new DefaultAzureCredential());
+            await using var client = CreateServiceBusClient();
             ServiceBusSender sender = client.CreateSender(_serviceBusQueue);
             await sender.SendMessageAsync(new ServiceBusMessage(Message));
             StatusMessage = "Message sent successfully!";
@@ -57,5 +55,24 @@ public class IndexModel : PageModel
         }
 
         return Page();
+    }
+
+    private ServiceBusClient CreateServiceBusClient()
+    {
+        if (!string.IsNullOrEmpty(_serviceBusConnectionString))
+        {
+            return new ServiceBusClient(_serviceBusConnectionString);
+        }
+
+        if (string.IsNullOrEmpty(_serviceBusNamespace))
+        {
+            throw new InvalidOperationException("Service Bus namespace is missing.");
+        }
+
+        string fullyQualifiedNamespace = _serviceBusNamespace.Contains(".servicebus.windows.net")
+            ? _serviceBusNamespace
+            : _serviceBusNamespace + ".servicebus.windows.net";
+
+        return new ServiceBusClient(fullyQualifiedNamespace, new DefaultAzureCredential());
     }
 }

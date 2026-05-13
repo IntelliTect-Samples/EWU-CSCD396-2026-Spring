@@ -10,7 +10,7 @@ This assignment is implemented as a monorepo deployment:
 ## Deployed Flow
 
 1. A user enters text on the web app home page and clicks **Send Message**.
-2. The container app uses its system-assigned managed identity to send the text to the `messages` Service Bus queue.
+2. The container app sends the text to the `messages` Service Bus queue.
 3. The Azure Function is triggered by the same queue.
 4. The Function writes the message body as a `.txt` blob in the `functionoutput` storage container.
 
@@ -19,14 +19,13 @@ This assignment is implemented as a monorepo deployment:
 - Azure Function is bound to Service Bus: `Assignment3/FunctionApp/Functions/ServiceBusMessageToBlob.cs`
 - Function App has managed identity enabled: `azurerm_linux_function_app.main`
 - Storage Account is created by Terraform: `azurerm_storage_account.main`
-- Function identity has Storage Blob Data Contributor: `azurerm_role_assignment.function_storage_blob_contributor`
-- Function identity has Service Bus Data Receiver: `azurerm_role_assignment.function_servicebus_receiver`
 - Container App has managed identity enabled: `azurerm_container_app.main`
-- Container App identity has Azure Service Bus Data Sender: `azurerm_role_assignment.containerapp_servicebus_sender`
 - Web app includes a text box and submit button: `Assignment2Webapp/Pages/Index.cshtml`
 - Web app sends messages to Service Bus: `Assignment2Webapp/Pages/Index.cshtml.cs`
 - Terraform state uses an Azure Storage backend: `Assignment3/Terraform/main.tf`
 - GitHub Actions deploys services: `.github/workflows/Assignment3.yml`
+
+The Function App and Container App both have system-assigned managed identities enabled. This subscription does not allow the GitHub Actions identity to create Azure role assignments, so the deployed app uses Terraform-managed Service Bus and Storage connection strings for the runtime message flow.
 
 ## GitHub Action Triggers
 

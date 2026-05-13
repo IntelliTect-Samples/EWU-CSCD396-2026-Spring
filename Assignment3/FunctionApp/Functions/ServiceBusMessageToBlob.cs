@@ -20,10 +20,12 @@ public class ServiceBusMessageToBlob
         [ServiceBusTrigger("%ServiceBusQueueName%", Connection = "ServiceBusConnection")]
         ServiceBusReceivedMessage message)
     {
-        var storageEndpoint = GetRequiredSetting("StorageAccountBlobEndpoint");
+        var storageConnectionString = Environment.GetEnvironmentVariable("StorageConnectionString");
         var outputContainer = GetRequiredSetting("OutputContainer");
 
-        var blobServiceClient = new BlobServiceClient(new Uri(storageEndpoint), new DefaultAzureCredential());
+        var blobServiceClient = !string.IsNullOrEmpty(storageConnectionString)
+            ? new BlobServiceClient(storageConnectionString)
+            : new BlobServiceClient(new Uri(GetRequiredSetting("StorageAccountBlobEndpoint")), new DefaultAzureCredential());
         var containerClient = blobServiceClient.GetBlobContainerClient(outputContainer);
         await containerClient.CreateIfNotExistsAsync();
 
