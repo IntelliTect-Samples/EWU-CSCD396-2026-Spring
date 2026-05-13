@@ -46,3 +46,21 @@ variable "service_bus_queue_name" {
   type        = string
   default     = "messages"
 }
+
+variable "function_app_name" {
+  description = "Name of the Azure Function App"
+  type        = string
+  default     = "assignment3-func"
+}
+
+variable "function_plan_name" {
+  description = "Name of the Azure Function App Service Plan"
+  type        = string
+  default     = "assignment3-func-plan"
+}
+
+variable "storage_account_name" {
+  description = "Name of the Storage Account"
+  type        = string
+  default     = "assignment3storage"
+}
