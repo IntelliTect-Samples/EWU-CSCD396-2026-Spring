@@ -1,0 +1,3 @@
+Resource Group: https://portal.azure.com/#@ewueagles.onmicrosoft.com/resource/subscriptions/207d6c46-9d83-44fc-b7d5-6e2cfcf4d001/resourceGroups/assignment3-rg/overview
+Website: https://assignment3ca.icyocean-f7856293.centralus.azurecontainerapps.io/
+Repo: https://github.com/wiilke/EWU-CSCD396-2026-Spring.git/tree/Assignment3

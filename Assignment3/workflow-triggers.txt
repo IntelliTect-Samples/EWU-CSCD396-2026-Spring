@@ -1,0 +1,24 @@
+Assignment 3 workflow trigger documentation
+
+The GitHub Actions workflow for this assignment is .github/workflows/Assignment3.yml.
+
+The workflow runs on pushes to the Assignment3 branch when files change under:
+
+- Assignment2Webapp/**
+- Assignment3/**
+- .github/workflows/Assignment3.yml
+
+Application code deployment:
+Changes under Assignment2Webapp/** trigger the deploy-webapp job. That job builds the web app container image, pushes it to Azure Container Registry, and updates the Azure Container App image.
+
+Infrastructure deployment:
+Changes under Assignment3/Terraform/** trigger the terraform job. That job runs terraform init, terraform fmt -check, terraform validate, terraform plan, and terraform apply.
+
+Application redeploy after Terraform:
+When Terraform files change, deploy-webapp runs after the terraform job succeeds. This redeploys the application code after infrastructure changes are applied.
+
+Function code deployment:
+Changes under Assignment3/FunctionApp/** trigger the deploy-function job. That job publishes the Azure Function project and deploys it to the Function App.
+
+Manual deployment:
+The workflow can also be run manually from the GitHub Actions tab. Manual runs deploy Terraform, the container app, and the Function app.
