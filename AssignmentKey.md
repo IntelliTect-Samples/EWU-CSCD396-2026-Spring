@@ -12,19 +12,19 @@
    - 100 points +5 EC points
    - Assigned: 4/28
    - Turn in: 5/12 11:59 pm
-1. [Assignment 4](Assignment4.md)
+1. [Sprint 1](Sprintt1.md)
    - 25 points +5 EC points
    - Assigned: 5/12
-   - Turn in: 5/14 2:00 pm
-1. [Assignment 5](Assignment5.md)
+   - Due: 5/14 2:00 pm
+1. [Sprint 2](Sprint2.md)
    - 25 points +5 EC points
    - Assigned: 5/14
    - Turn in: 5/19 2:00 pm
-1. [Assignment 6](Assignment6.md)
+1. [Sprint 3](Sprint 3.md)
    - 25 points +5 EC points
    - Assigned: 5/19
    - Turn in: 5/21 2:00 pm
-1. [Assignment 7](Assignment7.md)
+1. [AssiFinal Sprintgnment 7](FinalSprint.md)
    - 25 points +5 EC points
    - Assigned: 5/21
    - Turn in: 5/26 2:00 pm

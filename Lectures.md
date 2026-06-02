@@ -139,44 +139,40 @@ Messaging and Eventing
 ## Lecture 16
 Set the plan for remaining classes
 ### Topics Covered
-- Fabric
-
-## Lecture 17
-Agile Project Management
-### Topics Covered
-- Azure DevOps
-- Jira
 - Scrum Framework
   - Running a Sprint
   - Review and retrospective
   - Planning and estimation
-- Team project management and communication  
+- Jira and Azure DevOps
+
+## Lecture 17
+Data Analytics
+### Topics Covered
+- Fabric
 
 ## Lecture 18
 ### Topics Covered
-
+- Reusable workflows
+- Deployment strategies
 
 ## Lecture 19
-### Topics Covered
+- Foundry Lab
+- Sprint Review and Retrospective
+- Plan for Final Project
 
 ## Lecture 20
-### Topics Covered
-- Challenges
+- Code Quality and Testing
 - Ask Us Anything
 
-## Final Exams
-### Topics Covered
-- TBD
+## Final Exam
+10 minute presentation by each student
 
 ***
 
 ## Topics to Cover
-- o GitHub Issues/Boards
+- GitHub Issues/Boards
 - Run a sprint
-- 
----
 - Scrum/Agile
----
 - IaC, Terraform and Bicep
 - DevOps Building Blocks
     - Branch release patterns
@@ -188,7 +184,6 @@ Agile Project Management
 ## Azure Services
 Following is the primary list of services we plan to cover in this class. Note that several supporting services will also be covered.
 
-### Covered
 - Blob Storage
 - Key Vault
 - App Service
@@ -202,7 +197,6 @@ Following is the primary list of services we plan to cover in this class. Note t
 - API Management
 - Redis Cache
 
-### In Process
 - Azure Monitor and App Insights
     - Instrument class project
     - Additional Queries and/or alerts
@@ -210,14 +204,16 @@ Following is the primary list of services we plan to cover in this class. Note t
     - Deployment
     - Portal
 
+### New Services
+- Fabric
+- AI Foundry
+
 ### To Cover
 - MCP Servers
 - Container Apps
     - Kubernetes
 - CDN
 - Event Hub
-- Fabric
-- AI Foundry
 
 ### Extra/Bonus
 - OAuth
